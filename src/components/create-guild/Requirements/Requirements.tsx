@@ -1,7 +1,7 @@
 import { Box, SimpleGrid, Tooltip } from "@chakra-ui/react"
 import AddCard from "components/common/AddCard"
 import Section from "components/common/Section"
-import { AnimatePresence, AnimateSharedLayout } from "framer-motion"
+import { AnimatePresence, LayoutGroup } from "framer-motion"
 import { useFieldArray, useFormContext } from "react-hook-form"
 import { RequirementFormField, RequirementType } from "types"
 import FormCard from "./components/FormCard"
@@ -66,7 +66,7 @@ const Requirements = (): JSX.Element => {
     <>
       {controlledFields?.length > 0 && (
         <Section title="Set requirements">
-          <AnimateSharedLayout>
+          <LayoutGroup>
             <SimpleGrid
               columns={{ base: 1, md: 2, lg: 3 }}
               spacing={{ base: 5, md: 6 }}
@@ -90,7 +90,7 @@ const Requirements = (): JSX.Element => {
                 })}
               </AnimatePresence>
             </SimpleGrid>
-          </AnimateSharedLayout>
+          </LayoutGroup>
         </Section>
       )}
 

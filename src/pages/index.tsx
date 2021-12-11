@@ -93,17 +93,23 @@ const Page = ({ guilds: guildsInitial }: Props): JSX.Element => {
             usersGuilds.length &&
             usersGuilds
               .map((guild) => (
-                <ExplorerCardMotionWrapper key={guild.urlName}>
+                <ExplorerCardMotionWrapper
+                  key={guild.urlName}
+                  layoutId={`users_${guild.urlName}`}
+                >
                   <GuildCard guildData={guild} />
                 </ExplorerCardMotionWrapper>
               ))
               .concat(
-                <ExplorerCardMotionWrapper key="create-guild">
+                <ExplorerCardMotionWrapper
+                  key="create-guild"
+                  layoutId="create-guild"
+                >
                   <AddCard text="Create guild" link="/create-guild" />
                 </ExplorerCardMotionWrapper>
               )
           ) : (
-            <ExplorerCardMotionWrapper key="create-guild">
+            <ExplorerCardMotionWrapper key="create-guild" layoutId="create-guild">
               <AddCard text="Create guild" link="/create-guild" />
             </ExplorerCardMotionWrapper>
           )}
@@ -121,7 +127,10 @@ const Page = ({ guilds: guildsInitial }: Props): JSX.Element => {
         >
           {guilds.length &&
             guilds.map((guild) => (
-              <ExplorerCardMotionWrapper key={guild.urlName}>
+              <ExplorerCardMotionWrapper
+                key={guild.urlName}
+                layoutId={guild.urlName}
+              >
                 <GuildCard guildData={guild} />
               </ExplorerCardMotionWrapper>
             ))}

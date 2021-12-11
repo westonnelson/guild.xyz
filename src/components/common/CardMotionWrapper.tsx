@@ -6,14 +6,17 @@ const MotionBox = motion(Box)
 
 type Props = {
   animateOnMount?: boolean
+  layoutId?: string
 }
 
 const CardMotionWrapper = ({
   animateOnMount = true,
+  layoutId,
   children,
 }: PropsWithChildren<Props>): JSX.Element => (
   <MotionBox
     layout="position"
+    layoutId={layoutId}
     {...(animateOnMount && {
       initial: { opacity: 0, scale: 0.95 },
     })}

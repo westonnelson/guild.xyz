@@ -14,6 +14,7 @@ import { Error } from "components/common/Error"
 import Link from "components/common/Link"
 import { Modal } from "components/common/Modal"
 import ModalButton from "components/common/ModalButton"
+import useUser from "components/[guild]/hooks/useUser"
 import { ArrowSquareOut, CheckCircle } from "phosphor-react"
 import QRCode from "qrcode.react"
 import platformsContent from "../../platformsContent"
@@ -32,7 +33,8 @@ const JoinDiscordModal = ({ isOpen, onClose }: Props): JSX.Element => {
     title,
     join: { description },
   } = platformsContent.DISCORD
-  const { onOpen, id, error, isAuthenticating, idKnownOnBackend } = useDCAuth()
+  const { onOpen, id, error, isAuthenticating } = useDCAuth()
+  const { discordId: idKnownOnBackend } = useUser()
   const {
     response,
     isLoading,
@@ -40,16 +42,6 @@ const JoinDiscordModal = ({ isOpen, onClose }: Props): JSX.Element => {
     error: joinError,
     isSigning,
   } = useJoinPlatform("DISCORD", id)
-
-  const closeModal = () => {
-    // authSend("CLOSE_MODAL")
-    onClose()
-  }
-
-  const handleJoin = async () => {
-    // authSend("HIDE_NOTIFICATION")
-    onSubmit()
-  }
 
   // if addressSignedMessage is already known, submit useJoinPlatform on DC auth
   /* useEffect(() => {
@@ -67,7 +59,7 @@ const JoinDiscordModal = ({ isOpen, onClose }: Props): JSX.Element => {
   }, [isOpen]) */
 
   return (
-    <Modal isOpen={isOpen} onClose={closeModal}>
+    <Modal isOpen={isOpen} onClose={onClose}>
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>Join {title}</ModalHeader>
@@ -128,7 +120,7 @@ const JoinDiscordModal = ({ isOpen, onClose }: Props): JSX.Element => {
               if (joinError)
                 return <ModalButton onClick={onSubmit}>Try again</ModalButton>
               if ((!!id || idKnownOnBackend) && !response)
-                return <ModalButton onClick={handleJoin}>Verify address</ModalButton>
+                return <ModalButton onClick={onSubmit}>Verify address</ModalButton>
             })()}
           </VStack>
         </ModalFooter>

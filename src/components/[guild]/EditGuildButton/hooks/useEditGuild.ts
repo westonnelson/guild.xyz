@@ -1,4 +1,5 @@
 import useGuild from "components/[guild]/hooks/useGuild"
+import useMatchMutate from "hooks/useMatchMutate"
 import useShowErrorToast from "hooks/useShowErrorToast"
 import { useSubmitWithSign } from "hooks/useSubmit"
 import { WithValidation } from "hooks/useSubmit/useSubmit"
@@ -10,7 +11,10 @@ import replacer from "utils/guildJsonReplacer"
 
 const useEditGuild = (onSuccess?: () => void) => {
   const guild = useGuild()
+
   const { mutate } = useSWRConfig()
+  const matchMutate = useMatchMutate()
+
   const toast = useToast()
   const showErrorToast = useShowErrorToast()
 
@@ -28,7 +32,10 @@ const useEditGuild = (onSuccess?: () => void) => {
         status: "success",
       })
       if (onSuccess) onSuccess()
-      mutate(`/guild/${guild?.urlName}`)
+      mutate([`/guild/${guild?.urlName}`, undefined])
+
+      matchMutate(/^\/guild\/address\//)
+      matchMutate(/^\/guild\?order/)
     },
     onError: (err) => showErrorToast(err),
   })

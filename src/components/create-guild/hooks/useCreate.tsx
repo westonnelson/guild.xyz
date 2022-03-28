@@ -1,11 +1,14 @@
+import { Button, Text, ToastId } from "@chakra-ui/react"
 import { useRumAction, useRumError } from "@datadog/rum-react-integration"
-import { useWeb3React } from "@web3-react/core"
 import useJsConfetti from "components/create-guild/hooks/useJsConfetti"
+import useMatchMutate from "hooks/useMatchMutate"
 import useShowErrorToast from "hooks/useShowErrorToast"
 import { useSubmitWithSign } from "hooks/useSubmit"
 import { WithValidation } from "hooks/useSubmit/useSubmit"
 import useToast from "hooks/useToast"
 import { useRouter } from "next/router"
+import { TwitterLogo } from "phosphor-react"
+import { useRef } from "react"
 import { useSWRConfig } from "swr"
 import { Guild, PlatformName, Role } from "types"
 import fetcher from "utils/fetcher"
@@ -23,9 +26,11 @@ type RoleOrGuild = Role & Guild & FormInputs & { sign?: boolean }
 const useCreate = () => {
   const addDatadogAction = useRumAction("trackingAppAction")
   const addDatadogError = useRumError()
+  const toastIdRef = useRef<ToastId>()
 
-  const { account } = useWeb3React()
   const { mutate } = useSWRConfig()
+  const matchMutate = useMatchMutate()
+
   const toast = useToast()
   const showErrorToast = useShowErrorToast()
   const triggerConfetti = useJsConfetti()
@@ -55,11 +60,31 @@ const useCreate = () => {
       )
       triggerConfetti()
       if (router.query.guild) {
-        toast({
-          title: `Role successfully created!`,
+        toastIdRef.current = toast({
+          duration: 8000,
+          title: "Role successfully created",
+          description: (
+            <>
+              <Text>Let your guild know by sharing it on Twitter</Text>
+              <Button
+                as="a"
+                href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(`I've just added a new role to my guild. Check it out, maybe you have access 😉
+guild.xyz/${router.query.guild}`)}`}
+                target="_blank"
+                leftIcon={<TwitterLogo weight="fill" />}
+                size="sm"
+                onClick={() => toast.close(toastIdRef.current)}
+                mt={3}
+                mb="1"
+                borderRadius="lg"
+              >
+                Share
+              </Button>
+            </>
+          ),
           status: "success",
         })
-        mutate(`/guild/${router.query.guild}`)
+        mutate([`/guild/${router.query.guild}`, undefined])
       } else {
         toast({
           title: `Guild successfully created!`,
@@ -68,10 +93,9 @@ const useCreate = () => {
         })
         router.push(`/${response_.urlName}`)
       }
-      // refetch guilds to include the new one / new role on the home page
-      // the query will be the default one, which is ?order=member
-      mutate(`/guild/address/${account}?order=members`)
-      mutate(`/guild?order=members`)
+
+      matchMutate(/^\/guild\/address\//)
+      matchMutate(/^\/guild\?order/)
     },
   })
 
@@ -100,6 +124,7 @@ const useCreate = () => {
                 requirements: preprocessRequirements(data_?.requirements),
               },
             ],
+            admins: data_.admins,
           }
 
       return useSubmitResponse.onSubmit(JSON.parse(JSON.stringify(data, replacer)))

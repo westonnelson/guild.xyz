@@ -26,18 +26,26 @@ const useJoinPlatform = (platform: PlatformName, platformUserId: string) => {
     fetcher(`/user/join`, {
       body: data,
       validation,
+    }).then((body) => {
+      if (body === "rejected") {
+        // eslint-disable-next-line @typescript-eslint/no-throw-literal
+        throw "Something went wrong, join request rejected."
+      }
+      return body
     })
 
   const useSubmitResponse = useSubmitWithSign<any, Response>(submit, {
     // Revalidating the address list in the AccountModal component
     onSuccess: () => {
       addDatadogAction(`Successfully joined a guild`)
-      addDatadogAction(`Successfully joined a guild [${platform}]`)
+      if (platform?.length > 0)
+        addDatadogAction(`Successfully joined a guild [${platform}]`)
       mutate(`/user/${account}`)
     },
     onError: (err) => {
       addDatadogError(`Guild join error`, { error: err }, "custom")
-      addDatadogError(`Guild join error [${platform}]`, { error: err }, "custom")
+      if (platform?.length > 0)
+        addDatadogError(`Guild join error [${platform}]`, { error: err }, "custom")
     },
   })
 
@@ -45,9 +53,13 @@ const useJoinPlatform = (platform: PlatformName, platformUserId: string) => {
     ...useSubmitResponse,
     onSubmit: () =>
       useSubmitResponse.onSubmit({
-        platform,
         guildId: guild?.id,
-        platformUserId,
+        ...(platform?.length > 0
+          ? {
+              platformUserId,
+              platform,
+            }
+          : {}),
       }),
   }
 }

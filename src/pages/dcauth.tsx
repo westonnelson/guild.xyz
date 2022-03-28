@@ -32,6 +32,8 @@ const DCAuth = () => {
   const router = useRouter()
 
   useEffect(() => {
+    if (!router.isReady) return
+
     // We navigate to the index page if the dcauth page is used incorrectly
     // For example if someone just manually goes to /dcauth
     if (!window.location.hash) router.push("/")
@@ -67,7 +69,10 @@ const DCAuth = () => {
       )
 
     // Error from authentication
-    if (error) sendError(error, errorDescription)
+    if (error) {
+      sendError(error, errorDescription)
+      return
+    }
 
     fetchUserID(tokenType, accessToken)
       .then((id) =>

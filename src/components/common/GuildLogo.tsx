@@ -28,7 +28,11 @@ const GuildLogo = ({
     >
       {imageUrl && (
         <Image
-          src={imageUrl}
+          src={
+            imageUrl.includes("https://ipfs.fleek.co/ipfs/")
+              ? `/api/ipfs/${imageUrl.split("/").slice(-1)[0]}`
+              : imageUrl
+          }
           alt="Guild logo"
           width={imageUrl?.match("guildLogos") ? iconSize : size}
           height={imageUrl?.match("guildLogos") ? iconSize : size}
